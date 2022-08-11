@@ -9,4 +9,8 @@ public class CartServiceException extends RuntimeException {
     public CartServiceException(String msg, Throwable t) {
         super(msg, t);
     }
+
+    public CartServiceException(String msg) {
+        super(msg);
+    }
 }

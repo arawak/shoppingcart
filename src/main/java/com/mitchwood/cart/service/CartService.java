@@ -3,8 +3,6 @@ package com.mitchwood.cart.service;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.data.domain.Pageable;
-
 import lombok.NonNull;
 
 public interface CartService {
@@ -16,7 +14,7 @@ public interface CartService {
      * @param page
      * @return
      */
-    List<CartItem> getCartItems(@NonNull UUID cartId, @NonNull Pageable page);
+    List<CartItem> getCartItems(@NonNull UUID cartId);
 
     /**
      * Removes an item from a cart. If the quantity is greater than 1, all instances

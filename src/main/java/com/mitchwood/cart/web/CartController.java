@@ -1,11 +1,9 @@
 package com.mitchwood.cart.web;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,7 +19,6 @@ import com.mitchwood.cart.service.UnknownCartException;
 import com.mitchwood.cart.service.UnknownItemException;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
 @Controller
@@ -30,8 +27,8 @@ public class CartController {
     final CartService cartService;
 
     @GetMapping("/cart/{cartId}/items")
-    public List<CartItemResponse> getCartItems(@PathVariable UUID cartId, Pageable page) {
-        List<CartItem> items = cartService.getCartItems(cartId, page);
+    public List<CartItemResponse> getCartItems(@PathVariable UUID cartId) {
+        List<CartItem> items = cartService.getCartItems(cartId);
         
         List<CartItemResponse> response = new ArrayList<>(items.size());
         for (CartItem item : items) {

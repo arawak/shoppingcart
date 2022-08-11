@@ -20,9 +20,6 @@
       <column name="cart_id" type="uuid">
         <constraints primaryKey="true" nullable="false" />
       </column>
-      <column name="ordinal" type="int" />
-      <column name="read_roles" type="varchar(255)" />
-      <column name="write_roles" type="varchar(255)" />
     </createTable>
     
     <createTable tableName="cart_items">

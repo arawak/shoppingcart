@@ -4,6 +4,11 @@ import java.util.UUID;
 
 import com.mitchwood.cart.web.CartItemResponse;
 
+import lombok.Builder;
+import lombok.Value;
+
+@Value
+@Builder
 public class CartItem {
 
     UUID id;
