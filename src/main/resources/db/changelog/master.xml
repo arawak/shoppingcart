@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+  
+  <changeSet id="1" author="sean">
+
+    <createTable tableName="items">
+      <column name="item_id" type="uuid">
+        <constraints primaryKey="true" nullable="false" />
+      </column>
+      <column name="name" type="varchar(255)">
+        <constraints nullable="false" />
+      </column>
+      <column name="created" type="timestamp" />
+    </createTable>
+        
+    <createTable tableName="carts">
+      <column name="cart_id" type="uuid">
+        <constraints primaryKey="true" nullable="false" />
+      </column>
+      <column name="ordinal" type="int" />
+      <column name="read_roles" type="varchar(255)" />
+      <column name="write_roles" type="varchar(255)" />
+    </createTable>
+    
+    <createTable tableName="cart_items">
+      <column name="cart_id" type="uuid">
+        <constraints nullable="false" foreignKeyName="fk_cart_items_cart" references="carts(cart_id)"/>        
+      </column>
+      <column name="item_id" type="uuid">
+        <constraints nullable="false" foreignKeyName="fk_cart_items_item" references="items(item_id)"/>        
+      </column>
+      <column name="quantity" type="int" />
+    </createTable>
+    
+  </changeSet>
+ 
+</databaseChangeLog>
