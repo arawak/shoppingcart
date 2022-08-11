@@ -2,8 +2,6 @@ package com.mitchwood.cart.service;
 
 import java.util.UUID;
 
-import lombok.NonNull;
-
 /**
  * Thrown when a cart is specified but it doesn't exist.
  */

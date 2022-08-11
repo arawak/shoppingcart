@@ -21,14 +21,23 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * A cart service, implemented with Spring JDBC
+ */
 @RequiredArgsConstructor
 @Service
 @Slf4j
 public class JdbcCartService implements CartService {
 
-    static final String SQL_ADD_CART_ITEM = "";
+    // note that these two use the same params so we need to keep the order the same
+    static final String SQL_UPDATE_CART_ITEM_COUNT = "update cart_items set quantity = quantity + ? where cart_id = ? and item_id = ?";
+    static final String SQL_ADD_CART_ITEM = "insert into cart_items(quantity, cart_id, item_id) values(?,?,?)";
+    
+    
     static final String SQL_DELETE_CART_ITEM = "delete from cart_items where cart_id = ? and item_id = ?";
-    static final String SQL_GET_CART_ITEMS = "select item_id, name from cart_items where cart_id = ? order by item_id";
+    
+    static final String SQL_GET_CART_ITEMS = "select ci.item_id, i.name from cart_items ci join items i on i.item_id = ci.item_id" 
+                                            + " where cart_id = ? order by item_id";
 
     final JdbcTemplate jdbc;
 
@@ -66,17 +75,34 @@ public class JdbcCartService implements CartService {
         validateCartExists(cartId);
         
         Object[] params = {cartId, itemId};
-        log.debug("sql={} params=[{}]", SQL_DELETE_CART_ITEM);
-        jdbc.update("delete from cart_items where cart_id = ? and item_id = ?", params);
+        
+        try {
+            log.debug("sql={} params=[{}]", SQL_DELETE_CART_ITEM, params);
+            jdbc.update("delete from cart_items where cart_id = ? and item_id = ?", params);
+        } catch (Exception e) {
+            throw new CartServiceException("failed removing itemId=" + itemId + " from cartId=" + cartId, e);
+        }
     }
 
     @Transactional
     @Override
     public void addCartItem(@NonNull UUID cartId, @NonNull UUID itemId, int quantity) {
-        // this one is a little trickier, since we'll either need to increment an existing quantity
-        // or create a new row. Upsert to the rescue.
+        // this one is a little tricky, since we'll either need to increment an existing quantity
+        // or create a new row.
 
-        // TODO figure out H2 merge when not matched syntax
+        Object[] params = {quantity, cartId, itemId};
+
+        try {
+            log.debug("sql={} params=[{}]", SQL_UPDATE_CART_ITEM_COUNT, params);
+            int rows = jdbc.update(SQL_UPDATE_CART_ITEM_COUNT, params);
+            
+            if (rows < 1) { // doesn't exist so insert
+                log.debug("sql={} params=[{}]", SQL_ADD_CART_ITEM, params);
+                jdbc.update(SQL_ADD_CART_ITEM, params);
+            }
+        } catch (Exception e) {
+            throw new CartServiceException("failed adding qty=" + quantity + " of itemId=" + itemId + " to cartId=" + cartId, e);
+        }
     }
     
     /**

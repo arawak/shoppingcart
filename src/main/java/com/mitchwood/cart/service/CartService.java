@@ -5,6 +5,10 @@ import java.util.UUID;
 
 import lombok.NonNull;
 
+/**
+ * This service will throw a {@link CartServiceException} if it runs into problems
+ * with backing services such as network or database.
+ */
 public interface CartService {
 
     /**
@@ -12,7 +16,8 @@ public interface CartService {
      * 
      * @param cartId
      * @param page
-     * @return
+     * 
+     * @return a possibly empty List, but never null
      */
     List<CartItem> getCartItems(@NonNull UUID cartId);
 

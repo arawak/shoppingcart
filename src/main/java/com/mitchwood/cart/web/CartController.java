@@ -19,16 +19,25 @@ import com.mitchwood.cart.service.UnknownCartException;
 import com.mitchwood.cart.service.UnknownItemException;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
 @Controller
+@Slf4j
 public class CartController {    
     
     final CartService cartService;
 
     @GetMapping("/cart/{cartId}/items")
     public List<CartItemResponse> getCartItems(@PathVariable UUID cartId) {
-        List<CartItem> items = cartService.getCartItems(cartId);
+        List<CartItem> items = null;
+        
+        try {
+            items = cartService.getCartItems(cartId);
+        } catch (Exception e) {
+            log.error("error cart items for cartId=" + cartId, e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);            
+        }
         
         List<CartItemResponse> response = new ArrayList<>(items.size());
         for (CartItem item : items) {
@@ -45,8 +54,10 @@ public class CartController {
             cartService.addCartItem(cartId, request.getId(), request.getQuantity());
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid quantity specified");
-        }
-        
+        } catch (Exception e) {
+            log.error("error adding request=" + request + " to cartId=" + cartId, e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+        }        
     }
     
     @DeleteMapping("/cart/{cartId}/items/{itemId}")
@@ -60,6 +71,9 @@ public class CartController {
         } catch (UnknownItemException e) {
             // here too
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "unknown item specified");        
+        } catch (Exception e) {
+            log.error("error removing itemId=" + itemId + " from cartId=" + cartId, e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
